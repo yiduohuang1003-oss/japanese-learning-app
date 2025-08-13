@@ -77,14 +77,16 @@ export function Vocabulary() {
   const playPronunciation = (text: string) => {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'ja-JP';
-    utterance.rate = 0.8;
-    utterance.pitch = 1.0;
+    utterance.rate = 0.8; // 稍微慢一点，更清晰
+    utterance.pitch = 1.0; // 自然音调
     
+    // 尝试使用更自然的日语语音
     const voices = speechSynthesis.getVoices();
     const japaneseVoices = voices.filter(voice => 
       voice.lang.includes('ja') || voice.lang.includes('JP')
     );
     
+    // 优先选择女性日语语音，通常更清晰
     const preferredVoice = japaneseVoices.find(voice => 
       voice.name.includes('Female') || 
       voice.name.includes('女性') ||
@@ -135,6 +137,7 @@ export function Vocabulary() {
 
         {/* Filters */}
         <div className="flex flex-wrap gap-4">
+          {/* Type Filter */}
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value as 'all' | 'word' | 'phrase')}
@@ -145,6 +148,7 @@ export function Vocabulary() {
             <option value="phrase">句子</option>
           </select>
 
+          {/* Category Filter */}
           <select
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value as WordCategory | 'all')}
@@ -156,6 +160,7 @@ export function Vocabulary() {
             ))}
           </select>
 
+          {/* Rating Filter */}
           <div className="flex items-center space-x-2">
             <span className="text-sm text-gray-600">星级:</span>
             {[1, 2, 3, 4, 5].map(rating => (
@@ -173,6 +178,7 @@ export function Vocabulary() {
             ))}
           </div>
 
+          {/* Sort Options */}
           <select
             value={`${sortBy}-${sortOrder}`}
             onChange={(e) => {
@@ -201,81 +207,166 @@ export function Vocabulary() {
         ) : (
           <div className="grid gap-4">
             {filteredAndSortedWords.map((word) => (
-              <div key={word.id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-3 mb-2">
-                      <h3 className="text-xl font-bold text-gray-900">{word.japanese}</h3>
-                      {(() => {
-                        const translation = translateJapanese(word.japanese);
-                        return translation.furigana && (
-                          <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                            {translation.furigana}
-                          </span>
-                        );
-                      })()}
-                      <button
-                        onClick={() => playPronunciation(word.japanese)}
-                        className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
-                      >
-                        <Volume2 className="w-5 h-5" />
-                      </button>
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        word.isPhrase 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-blue-100 text-blue-800'
-                      }`}>
-                        {word.isPhrase ? '句子' : '单词'}
-                      </span>
-                    </div>
-
-                    <p className="text-gray-600 mb-4">{word.chinese}</p>
-
-                    <div className="flex items-center space-x-4 mb-4">
-                      <select
-                        value={word.category}
-                        onChange={(e) => handleCategoryChange(word.id, e.target.value as WordCategory)}
-                        className="px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
-                      >
-                        {categories.map(cat => (
-                          <option key={cat.value} value={cat.value}>{cat.label}</option>
-                        ))}
-                      </select>
-
-                      <div className="flex items-center space-x-1">
-                        {[1, 2, 3, 4, 5].map(rating => (
-                          <button
-                            key={rating}
-                            onClick={() => handleRatingChange(word.id, rating)}
-                            className={`p-1 ${
-                              rating <= word.rating
-                                ? 'text-yellow-500'
-                                : 'text-gray-300 hover:text-yellow-400'
-                            }`}
-                          >
-                            <Star className="w-4 h-4 fill-current" />
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center text-xs text-gray-400">
-                      <Calendar className="w-4 h-4 mr-1" />
-                      {new Date(word.createdAt).toLocaleDateString('zh-CN')}
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => deleteWord(word.id)}
-                    className="p-2 text-gray-400 hover:text-red-600 transition-colors"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
+              <WordCard
+                key={word.id}
+                word={word}
+                onRatingChange={handleRatingChange}
+                onCategoryChange={handleCategoryChange}
+                onDelete={() => deleteWord(word.id)}
+                onPlayPronunciation={playPronunciation}
+              />
             ))}
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+interface WordCardProps {
+  word: Word;
+  onRatingChange: (wordId: string, rating: number) => void;
+  onCategoryChange: (wordId: string, category: WordCategory) => void;
+  onDelete: () => void;
+  onPlayPronunciation: (text: string) => void;
+}
+
+function WordCard({ 
+  word, 
+  onRatingChange, 
+  onCategoryChange, 
+  onDelete, 
+  onPlayPronunciation 
+}: WordCardProps) {
+  const { updateWord } = useApp();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedTranslation, setEditedTranslation] = useState(word.chinese);
+
+  const handleSaveTranslation = () => {
+    updateWord(word.id, { chinese: editedTranslation });
+    setIsEditing(false);
+  };
+
+  const handleAutoTranslate = () => {
+    if (isJapanese(word.japanese)) {
+      const translation = translateJapanese(word.japanese);
+      setEditedTranslation(translation.chinese);
+      updateWord(word.id, { chinese: translation.chinese });
+    }
+  };
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          {/* Japanese Text */}
+          <div className="flex items-center space-x-3 mb-2">
+            <h3 className="text-xl font-bold text-gray-900">{word.japanese}</h3>
+            {(() => {
+              const translation = translateJapanese(word.japanese);
+              return translation.furigana && (
+                <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                  {translation.furigana}
+                </span>
+              );
+            })()}
+            <button
+              onClick={() => onPlayPronunciation(word.japanese)}
+              className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
+            >
+              <Volume2 className="w-5 h-5" />
+            </button>
+            <span className={`px-2 py-1 text-xs rounded-full ${
+              word.isPhrase 
+                ? 'bg-green-100 text-green-800' 
+                : 'bg-blue-100 text-blue-800'
+            }`}>
+              {word.isPhrase ? '句子' : '单词'}
+            </span>
+          </div>
+
+          {/* Chinese Translation */}
+          <div className="mb-4">
+            {isEditing ? (
+              <div className="flex items-center space-x-2">
+                <input
+                  type="text"
+                  value={editedTranslation}
+                  onChange={(e) => setEditedTranslation(e.target.value)}
+                  className="flex-1 px-3 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  onClick={handleAutoTranslate}
+                  className="px-2 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
+                  title="自动翻译"
+                >
+                  译
+                </button>
+                <button
+                  onClick={handleSaveTranslation}
+                  className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+                >
+                  保存
+                </button>
+                <button
+                  onClick={() => setIsEditing(false)}
+                  className="px-3 py-1 bg-gray-300 text-gray-700 text-sm rounded hover:bg-gray-400"
+                >
+                  取消
+                </button>
+              </div>
+            ) : (
+              <p 
+                className="text-gray-600 cursor-pointer hover:text-blue-600"
+                onClick={() => setIsEditing(true)}
+              >
+                {word.chinese}
+              </p>
+            )}
+          </div>
+
+          {/* Category and Rating */}
+          <div className="flex items-center space-x-4 mb-4">
+            <select
+              value={word.category}
+              onChange={(e) => onCategoryChange(word.id, e.target.value as WordCategory)}
+              className="px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+            >
+              {categories.map(cat => (
+                <option key={cat.value} value={cat.value}>{cat.label}</option>
+              ))}
+            </select>
+
+            <div className="flex items-center space-x-1">
+              {[1, 2, 3, 4, 5].map(rating => (
+                <button
+                  key={rating}
+                  onClick={() => onRatingChange(word.id, rating)}
+                  className={`p-1 ${
+                    rating <= word.rating
+                      ? 'text-yellow-500'
+                      : 'text-gray-300 hover:text-yellow-400'
+                  }`}
+                >
+                  <Star className="w-4 h-4 fill-current" />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Created Date */}
+          <div className="flex items-center text-xs text-gray-400">
+            <Calendar className="w-4 h-4 mr-1" />
+            {new Date(word.createdAt).toLocaleDateString('zh-CN')}
+          </div>
+        </div>
+
+        {/* Delete Button */}
+        <button
+          onClick={onDelete}
+          className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+        >
+          <Trash2 className="w-5 h-5" />
+        </button>
       </div>
     </div>
   );
