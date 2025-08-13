@@ -1,4 +1,4 @@
-// 百度翻译API集成 - 调试版本
+// 百度翻译API集成 - 使用替代方案
 interface TranslationResult {
   japanese: string;
   chinese: string;
@@ -21,105 +21,47 @@ function findJapaneseByChineseInDict(chinese: string): string | null {
   return null;
 }
 
-// 调用百度翻译API
-export async function translateWithBaidu(
+// 使用免费的翻译API服务
+export async function translateWithFreeAPI(
   text: string, 
   from: string = 'zh', 
-  to: string = 'jp'
+  to: string = 'ja'
 ): Promise<string> {
-  console.log('🔄 开始调用百度翻译API');
+  console.log('🔄 开始调用免费翻译API');
   console.log('📝 翻译文本:', text);
   console.log('🌐 翻译方向:', `${from} -> ${to}`);
   
-  // 检查Supabase配置
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-  const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-  
-  console.log('🔧 Supabase配置检查:');
-  console.log('  - URL存在:', !!supabaseUrl);
-  console.log('  - URL值:', supabaseUrl ? supabaseUrl.substring(0, 30) + '...' : '未设置');
-  console.log('  - Key存在:', !!supabaseKey);
-  console.log('  - Key值:', supabaseKey ? supabaseKey.substring(0, 20) + '...' : '未设置');
-  
-  if (!supabaseUrl || !supabaseKey) {
-    const error = 'Supabase配置缺失，无法调用翻译服务';
-    console.error('❌', error);
-    throw new Error(error);
-  }
-  
-  const apiUrl = `${supabaseUrl}/functions/v1/translate`;
-  console.log('🎯 API地址:', apiUrl);
-  
-  const headers = {
-    'Authorization': `Bearer ${supabaseKey}`,
-    'Content-Type': 'application/json',
-  };
-  
-  const requestBody = {
-    text,
-    from,
-    to
-  };
-  
-  console.log('📤 请求头:', {
-    'Authorization': `Bearer ${supabaseKey.substring(0, 20)}...`,
-    'Content-Type': 'application/json'
-  });
-  console.log('📤 请求体:', requestBody);
-  
   try {
-    console.log('🚀 发送请求...');
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(requestBody)
-    });
+    // 使用 MyMemory 翻译API（免费，无需密钥）
+    const apiUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from}|${to}`;
+    
+    console.log('🎯 API地址:', apiUrl);
+    
+    const response = await fetch(apiUrl);
     
     console.log('📥 响应状态:', response.status);
-    console.log('📥 响应状态文本:', response.statusText);
-    console.log('📥 响应头:', Object.fromEntries(response.headers.entries()));
     
     if (!response.ok) {
-      console.error('❌ HTTP错误:', response.status, response.statusText);
-      
-      // 尝试读取错误响应体
-      try {
-        const errorText = await response.text();
-        console.error('❌ 错误响应体:', errorText);
-        throw new Error(`HTTP ${response.status}: ${errorText || response.statusText}`);
-      } catch (readError) {
-        console.error('❌ 无法读取错误响应:', readError);
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
     
     const data = await response.json();
     console.log('✅ 响应数据:', data);
     
-    if (data.error) {
-      console.error('❌ API返回错误:', data.error);
-      throw new Error(data.error);
-    }
-    
-    if (data.success && data.result) {
-      console.log('🎉 翻译成功:', data.result);
-      return data.result;
+    if (data.responseData && data.responseData.translatedText) {
+      console.log('🎉 翻译成功:', data.responseData.translatedText);
+      return data.responseData.translatedText;
     }
     
     throw new Error('翻译结果格式异常');
     
   } catch (error) {
     console.error('❌ 翻译请求失败:', error);
-    
-    if (error instanceof TypeError && error.message.includes('fetch')) {
-      throw new Error('网络连接失败，请检查网络连接');
-    }
-    
     throw error;
   }
 }
 
-// 智能翻译：本地词典优先，百度API兜底
+// 智能翻译：本地词典优先，免费API兜底
 export async function smartTranslate(
   text: string, 
   direction: 'zh-to-jp' | 'jp-to-zh' = 'zh-to-jp'
@@ -145,9 +87,9 @@ export async function smartTranslate(
       };
     }
     
-    console.log('🌐 本地词典未找到，尝试API翻译');
+    console.log('🌐 本地词典未找到，尝试免费API翻译');
     try {
-      const apiResult = await translateWithBaidu(text, 'jp', 'zh');
+      const apiResult = await translateWithFreeAPI(text, 'ja', 'zh');
       console.log('✅ API翻译成功:', apiResult);
       return {
         japanese: text,
@@ -178,9 +120,9 @@ export async function smartTranslate(
       };
     }
     
-    console.log('🌐 本地词典未找到，尝试API翻译');
+    console.log('🌐 本地词典未找到，尝试免费API翻译');
     try {
-      const apiResult = await translateWithBaidu(text, 'zh', 'jp');
+      const apiResult = await translateWithFreeAPI(text, 'zh', 'ja');
       console.log('✅ API翻译成功:', apiResult);
       return {
         japanese: apiResult,
