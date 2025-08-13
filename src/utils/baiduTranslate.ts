@@ -21,7 +21,7 @@ function findJapaneseByChineseInDict(chinese: string): string | null {
   return null;
 }
 
-// 使用免费的翻译API服务
+// 使用多个免费翻译API服务
 export async function translateWithFreeAPI(
   text: string, 
   from: string = 'zh', 
@@ -31,34 +31,67 @@ export async function translateWithFreeAPI(
   console.log('📝 翻译文本:', text);
   console.log('🌐 翻译方向:', `${from} -> ${to}`);
   
-  try {
-    // 使用 MyMemory 翻译API（免费，无需密钥）
-    const apiUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from}|${to}`;
-    
-    console.log('🎯 API地址:', apiUrl);
-    
-    const response = await fetch(apiUrl);
-    
-    console.log('📥 响应状态:', response.status);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+  // API列表，按优先级排序
+  const apis = [
+    {
+      name: 'LibreTranslate',
+      url: 'https://libretranslate.de/translate',
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        q: text,
+        source: from === 'zh' ? 'zh' : 'ja',
+        target: to === 'ja' ? 'ja' : 'zh',
+        format: 'text'
+      }),
+      parseResponse: (data: any) => data.translatedText
+    },
+    {
+      name: 'MyMemory',
+      url: `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from}|${to}`,
+      method: 'GET',
+      headers: {},
+      body: null,
+      parseResponse: (data: any) => data.responseData?.translatedText
     }
-    
-    const data = await response.json();
-    console.log('✅ 响应数据:', data);
-    
-    if (data.responseData && data.responseData.translatedText) {
-      console.log('🎉 翻译成功:', data.responseData.translatedText);
-      return data.responseData.translatedText;
+  ];
+
+  // 尝试每个API
+  for (const api of apis) {
+    try {
+      console.log(`🎯 尝试 ${api.name} API:`, api.url);
+      
+      const response = await fetch(api.url, {
+        method: api.method,
+        headers: api.headers,
+        body: api.body
+      });
+      
+      console.log(`📥 ${api.name} 响应状态:`, response.status);
+      
+      if (!response.ok) {
+        console.warn(`❌ ${api.name} HTTP错误:`, response.status, response.statusText);
+        continue;
+      }
+      
+      const data = await response.json();
+      console.log(`✅ ${api.name} 响应数据:`, data);
+      
+      const result = api.parseResponse(data);
+      if (result && result.trim()) {
+        console.log(`🎉 ${api.name} 翻译成功:`, result);
+        return result.trim();
+      }
+      
+      console.warn(`⚠️ ${api.name} 返回空结果`);
+      
+    } catch (error) {
+      console.error(`❌ ${api.name} 请求失败:`, error);
+      continue;
     }
-    
-    throw new Error('翻译结果格式异常');
-    
-  } catch (error) {
-    console.error('❌ 翻译请求失败:', error);
-    throw error;
   }
+  
+  throw new Error('所有翻译API都失败了');
 }
 
 // 智能翻译：本地词典优先，免费API兜底
@@ -70,7 +103,7 @@ export async function smartTranslate(
   console.log('📝 输入文本:', text);
   console.log('🔄 翻译方向:', direction);
   
-  const { translateJapanese, isJapanese } = await import('./dictionary');
+  const { translateJapanese, isJapanese, japaneseDict } = await import('./dictionary');
   
   if (direction === 'jp-to-zh') {
     console.log('🔍 日语到中文翻译');
@@ -106,18 +139,21 @@ export async function smartTranslate(
     }
   } else {
     console.log('🔍 中文到日语翻译');
-    // 中文到日语：先尝试本地词典反查
-    const japaneseFromDict = findJapaneseByChineseInDict(text);
     
-    if (japaneseFromDict) {
-      console.log('✅ 本地词典反查找到:', japaneseFromDict);
-      const localResult = translateJapanese(japaneseFromDict);
-      return {
-        japanese: japaneseFromDict,
-        chinese: text,
-        furigana: localResult.furigana,
-        source: 'local'
-      };
+    // 中文到日语：先尝试本地词典反查
+    console.log('🔍 在本地词典中反查...');
+    for (const [japanese, entry] of Object.entries(japaneseDict)) {
+      const chineseTranslation = typeof entry === 'string' ? entry : entry.chinese;
+      if (chineseTranslation === text.trim()) {
+        console.log('✅ 本地词典反查找到:', japanese);
+        const localResult = translateJapanese(japanese);
+        return {
+          japanese: japanese,
+          chinese: text,
+          furigana: localResult.furigana,
+          source: 'local'
+        };
+      }
     }
     
     console.log('🌐 本地词典未找到，尝试免费API翻译');
@@ -131,11 +167,79 @@ export async function smartTranslate(
       };
     } catch (error) {
       console.error('❌ API翻译失败:', error);
+      
+      // 如果API失败，尝试简单的音译或提供建议
+      const suggestions = getSuggestions(text);
       return {
-        japanese: `翻译失败: ${error.message}`,
+        japanese: suggestions.length > 0 ? suggestions[0] : '翻译暂不可用',
         chinese: text,
         source: 'api'
       };
     }
   }
+}
+
+// 获取翻译建议（基于常见模式）
+function getSuggestions(chinese: string): string[] {
+  const suggestions: string[] = [];
+  
+  // 简单的音译规则
+  const phoneticMap: Record<string, string> = {
+    '你好': 'こんにちは',
+    '谢谢': 'ありがとう',
+    '对不起': 'すみません',
+    '再见': 'さようなら',
+    '早上好': 'おはよう',
+    '晚上好': 'こんばんは',
+    '是': 'はい',
+    '不是': 'いいえ',
+    '水': 'みず',
+    '茶': 'おちゃ',
+    '咖啡': 'コーヒー',
+    '米饭': 'ごはん',
+    '面包': 'パン',
+    '肉': 'にく',
+    '鱼': 'さかな',
+    '蔬菜': 'やさい',
+    '水果': 'くだもの',
+    '苹果': 'りんご',
+    '香蕉': 'バナナ',
+    '家': 'いえ',
+    '学校': 'がっこう',
+    '工作': 'しごと',
+    '朋友': 'ともだち',
+    '老师': 'せんせい',
+    '学生': 'がくせい',
+    '今天': 'きょう',
+    '明天': 'あした',
+    '昨天': 'きのう',
+    '现在': 'いま',
+    '时间': 'じかん',
+    '钱': 'おかね',
+    '书': 'ほん',
+    '电话': 'でんわ',
+    '电脑': 'パソコン',
+    '汽车': 'くるま',
+    '电车': 'でんしゃ',
+    '飞机': 'ひこうき',
+    '医院': 'びょういん',
+    '银行': 'ぎんこう',
+    '商店': 'みせ',
+    '餐厅': 'レストラン',
+    '酒店': 'ホテル'
+  };
+  
+  // 检查是否有直接匹配
+  if (phoneticMap[chinese]) {
+    suggestions.push(phoneticMap[chinese]);
+  }
+  
+  // 检查是否包含已知词汇
+  for (const [cn, jp] of Object.entries(phoneticMap)) {
+    if (chinese.includes(cn)) {
+      suggestions.push(jp);
+    }
+  }
+  
+  return suggestions;
 }
