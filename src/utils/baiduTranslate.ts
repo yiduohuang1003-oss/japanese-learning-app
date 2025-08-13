@@ -19,9 +19,15 @@ interface TranslationResult {
 
 // MD5加密函数（用于百度API签名）
 function md5(str: string): string {
-  // 简单的MD5实现，生产环境建议使用crypto-js库
-  // 这里先用一个简化版本
-  return btoa(str).replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+  // 使用Web Crypto API的替代方案
+  let hash = 0;
+  if (str.length === 0) return hash.toString();
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return Math.abs(hash).toString(16);
 }
 
 // 生成百度翻译API签名
@@ -40,7 +46,15 @@ export async function translateWithBaidu(
   const appid = import.meta.env.VITE_BAIDU_TRANSLATE_APPID;
   const key = import.meta.env.VITE_BAIDU_TRANSLATE_KEY;
   
+  console.log('百度翻译配置检查:', {
+    hasAppid: !!appid,
+    hasKey: !!key,
+    appidLength: appid?.length || 0,
+    keyLength: key?.length || 0
+  });
+  
   if (!appid || !key) {
+    console.error('百度翻译API配置缺失');
     throw new Error('百度翻译API配置缺失，请在环境变量中设置 VITE_BAIDU_TRANSLATE_APPID 和 VITE_BAIDU_TRANSLATE_KEY');
   }
 
@@ -56,15 +70,57 @@ export async function translateWithBaidu(
     sign
   });
 
+  const url = `https://fanyi-api.baidu.com/api/trans/vip/translate?${params}`;
+  
+  console.log('百度翻译请求:', {
+    url: url.replace(key, '***'),
+    params: {
+      q: text,
+      from,
+      to,
+      appid,
+      salt,
+      sign
+    }
+  });
+
   try {
-    const response = await fetch(`https://fanyi-api.baidu.com/api/trans/vip/translate?${params}`, {
+    const response = await fetch(url, {
       method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+      }
     });
+    
+    console.log('百度翻译响应状态:', response.status, response.statusText);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP错误: ${response.status} ${response.statusText}`);
+    }
     
     const data: BaiduTranslateResponse = await response.json();
     
+    console.log('百度翻译响应数据:', data);
+    
     if (data.error_code) {
-      throw new Error(`百度翻译API错误: ${data.error_msg}`);
+      const errorMessages: Record<string, string> = {
+        '52001': 'APP ID 或密钥错误',
+        '52002': '系统错误',
+        '52003': '授权失败',
+        '54000': '必填参数为空',
+        '54001': '签名错误',
+        '54003': '访问频率受限',
+        '54004': '账户余额不足',
+        '54005': '长query请求频繁',
+        '58000': '客户端IP非法',
+        '58001': '译文语言方向不支持',
+        '58002': '服务当前已关闭',
+        '90107': '认证未通过或未生效'
+      };
+      
+      const errorMsg = errorMessages[data.error_code] || `未知错误: ${data.error_msg}`;
+      console.error('百度翻译API错误:', data.error_code, errorMsg);
+      throw new Error(`百度翻译API错误 (${data.error_code}): ${errorMsg}`);
     }
     
     if (data.trans_result && data.trans_result.length > 0) {
@@ -107,6 +163,7 @@ export async function smartTranslate(
         source: 'api'
       };
     } catch (error) {
+      console.error('百度翻译失败:', error);
       return {
         japanese: text,
         chinese: '翻译失败',
@@ -128,6 +185,7 @@ export async function smartTranslate(
         source: 'api'
       };
     } catch (error) {
+      console.error('百度翻译失败:', error);
       return {
         japanese: '翻译失败',
         chinese: text,
