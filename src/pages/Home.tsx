@@ -70,7 +70,7 @@ export function Home() {
     } catch (error) {
       console.error('翻译失败:', error);
       setTranslationResult({
-        japanese: '翻译失败',
+        japanese: '翻译功能暂时不可用',
         chinese: chineseInput.trim(),
         source: 'api'
       });
