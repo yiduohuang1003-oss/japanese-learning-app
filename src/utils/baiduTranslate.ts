@@ -1,4 +1,4 @@
-// 百度翻译API集成
+// 百度翻译API集成 - 通过Supabase Edge Function
 interface BaiduTranslateResponse {
   from: string;
   to: string;
@@ -17,119 +17,72 @@ interface TranslationResult {
   furigana?: string;
 }
 
-// MD5加密函数（用于百度API签名）
-function md5(str: string): string {
-  // 使用Web Crypto API的替代方案
-  let hash = 0;
-  if (str.length === 0) return hash.toString();
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32bit integer
-  }
-  return Math.abs(hash).toString(16);
+interface EdgeFunctionResponse {
+  success?: boolean;
+  result?: string;
+  error?: string;
+  details?: string;
+  code?: string;
 }
 
-// 生成百度翻译API签名
-function generateSign(query: string, appid: string, salt: string, key: string): string {
-  const str = appid + query + salt + key;
-  return md5(str);
-}
-
-// 调用百度翻译API
+// 通过Supabase Edge Function调用百度翻译API
 export async function translateWithBaidu(
   text: string, 
   from: string = 'zh', 
   to: string = 'jp'
 ): Promise<string> {
-  // 从环境变量获取百度翻译API配置
-  const appid = import.meta.env.VITE_BAIDU_TRANSLATE_APPID;
-  const key = import.meta.env.VITE_BAIDU_TRANSLATE_KEY;
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
   
-  console.log('百度翻译配置检查:', {
-    hasAppid: !!appid,
-    hasKey: !!key,
-    appidLength: appid?.length || 0,
-    keyLength: key?.length || 0
-  });
-  
-  if (!appid || !key) {
-    console.error('百度翻译API配置缺失');
-    throw new Error('百度翻译API配置缺失，请在环境变量中设置 VITE_BAIDU_TRANSLATE_APPID 和 VITE_BAIDU_TRANSLATE_KEY');
+  if (!supabaseUrl) {
+    throw new Error('Supabase配置缺失，无法使用翻译功能');
   }
-
-  const salt = Date.now().toString();
-  const sign = generateSign(text, appid, salt, key);
   
-  const params = new URLSearchParams({
-    q: text,
+  const functionUrl = `${supabaseUrl}/functions/v1/translate`;
+  
+  console.log('调用翻译Edge Function:', {
+    url: functionUrl,
+    text,
     from,
-    to,
-    appid,
-    salt,
-    sign
-  });
-
-  const url = `https://fanyi-api.baidu.com/api/trans/vip/translate?${params}`;
-  
-  console.log('百度翻译请求:', {
-    url: url.replace(key, '***'),
-    params: {
-      q: text,
-      from,
-      to,
-      appid,
-      salt,
-      sign
-    }
+    to
   });
 
   try {
-    const response = await fetch(url, {
-      method: 'GET',
+    const response = await fetch(functionUrl, {
+      method: 'POST',
       headers: {
-        'Accept': 'application/json',
-      }
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
+      },
+      body: JSON.stringify({
+        text,
+        from,
+        to
+      })
     });
     
-    console.log('百度翻译响应状态:', response.status, response.statusText);
+    console.log('Edge Function响应状态:', response.status, response.statusText);
     
     if (!response.ok) {
-      throw new Error(`HTTP错误: ${response.status} ${response.statusText}`);
+      const errorText = await response.text();
+      console.error('Edge Function错误响应:', errorText);
+      throw new Error(`翻译服务错误: ${response.status} ${response.statusText}`);
     }
     
-    const data: BaiduTranslateResponse = await response.json();
+    const data: EdgeFunctionResponse = await response.json();
     
-    console.log('百度翻译响应数据:', data);
+    console.log('Edge Function响应数据:', data);
     
-    if (data.error_code) {
-      const errorMessages: Record<string, string> = {
-        '52001': 'APP ID 或密钥错误',
-        '52002': '系统错误',
-        '52003': '授权失败',
-        '54000': '必填参数为空',
-        '54001': '签名错误',
-        '54003': '访问频率受限',
-        '54004': '账户余额不足',
-        '54005': '长query请求频繁',
-        '58000': '客户端IP非法',
-        '58001': '译文语言方向不支持',
-        '58002': '服务当前已关闭',
-        '90107': '认证未通过或未生效'
-      };
-      
-      const errorMsg = errorMessages[data.error_code] || `未知错误: ${data.error_msg}`;
-      console.error('百度翻译API错误:', data.error_code, errorMsg);
-      throw new Error(`百度翻译API错误 (${data.error_code}): ${errorMsg}`);
+    if (data.error) {
+      throw new Error(data.error + (data.details ? `: ${data.details}` : ''));
     }
     
-    if (data.trans_result && data.trans_result.length > 0) {
-      return data.trans_result[0].dst;
+    if (data.success && data.result) {
+      return data.result;
     }
     
     throw new Error('翻译结果为空');
   } catch (error) {
-    console.error('百度翻译API调用失败:', error);
+    console.error('调用翻译Edge Function失败:', error);
     throw error;
   }
 }
