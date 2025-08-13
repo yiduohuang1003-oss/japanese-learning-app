@@ -17,19 +17,19 @@ interface BaiduTranslateResponse {
   error_msg?: string;
 }
 
-// MD5加密函数
-function md5(str: string): string {
-  // 简单的MD5实现，用于百度API签名
-  const crypto = new TextEncoder().encode(str);
-  return Array.from(new Uint8Array(crypto))
-    .map(b => b.toString(16).padStart(2, '0'))
-    .join('');
+// MD5加密函数 - 使用Web Crypto API
+async function md5(str: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(str);
+  const hashBuffer = await crypto.subtle.digest('MD5', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 // 生成百度翻译API签名
-function generateSign(query: string, appid: string, salt: string, key: string): string {
+async function generateSign(query: string, appid: string, salt: string, key: string): Promise<string> {
   const str = appid + query + salt + key;
-  return md5(str);
+  return await md5(str);
 }
 
 const corsHeaders = {
@@ -51,6 +51,11 @@ serve(async (req: Request) => {
     // 从环境变量获取百度翻译API配置
     const appid = Deno.env.get('BAIDU_TRANSLATE_APPID');
     const key = Deno.env.get('BAIDU_TRANSLATE_KEY');
+    
+    console.log('环境变量检查:', {
+      appid: appid ? '已设置' : '未设置',
+      key: key ? '已设置' : '未设置'
+    });
     
     if (!appid || !key) {
       console.error('百度翻译API配置缺失');
@@ -81,7 +86,7 @@ serve(async (req: Request) => {
 
     // 生成签名参数
     const salt = Date.now().toString();
-    const sign = generateSign(text, appid, salt, key);
+    const sign = await generateSign(text, appid, salt, key);
     
     // 构建请求参数
     const params = new URLSearchParams({
