@@ -214,14 +214,6 @@ export function ImageCollection() {
               <span>粘贴图片</span>
             </button>
             
-            <button
-              onClick={handlePasteAreaClick}
-              className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-            >
-              <Clipboard className="w-5 h-5" />
-              <span>粘贴图片</span>
-            </button>
-            
             <input
               ref={fileInputRef}
               type="file"
