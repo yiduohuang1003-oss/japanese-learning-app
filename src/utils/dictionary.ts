@@ -38,6 +38,12 @@ export const japaneseDict: Record<string, DictionaryEntry | string> = {
   '九': { chinese: '九', furigana: 'きゅう' },
   'じゅう': { chinese: '十' },
   '十': { chinese: '十', furigana: 'じゅう' },
+  'ひゃく': { chinese: '百' },
+  '百': { chinese: '百', furigana: 'ひゃく' },
+  'せん': { chinese: '千' },
+  '千': { chinese: '千', furigana: 'せん' },
+  'まん': { chinese: '万' },
+  '万': { chinese: '万', furigana: 'まん' },
   
   // 时间
   'いま': { chinese: '现在' },
@@ -60,6 +66,12 @@ export const japaneseDict: Record<string, DictionaryEntry | string> = {
   '分': { chinese: '分钟', furigana: 'ぶん' },
   'じ': { chinese: '点钟' },
   '時': { chinese: '点钟', furigana: 'じ' },
+  'しゅう': { chinese: '周' },
+  '週': { chinese: '周', furigana: 'しゅう' },
+  'つき': { chinese: '月' },
+  '月': { chinese: '月', furigana: 'つき' },
+  'とし': { chinese: '年' },
+  '年': { chinese: '年', furigana: 'とし' },
   
   // 家庭
   'かぞく': { chinese: '家庭' },
@@ -80,6 +92,10 @@ export const japaneseDict: Record<string, DictionaryEntry | string> = {
   '子供': { chinese: '孩子', furigana: 'こども' },
   'あかちゃん': { chinese: '婴儿' },
   '赤ちゃん': { chinese: '婴儿', furigana: 'あかちゃん' },
+  'おじいさん': { chinese: '爷爷' },
+  'おばあさん': { chinese: '奶奶' },
+  'おじさん': { chinese: '叔叔' },
+  'おばさん': { chinese: '阿姨' },
   
   // 食物
   'たべもの': { chinese: '食物' },
@@ -105,12 +121,27 @@ export const japaneseDict: Record<string, DictionaryEntry | string> = {
   'りんご': { chinese: '苹果' },
   'みかん': { chinese: '橘子' },
   'バナナ': { chinese: '香蕉' },
+  'いちご': { chinese: '草莓' },
+  'ぶどう': { chinese: '葡萄' },
+  'もも': { chinese: '桃子' },
+  'なし': { chinese: '梨' },
+  'すいか': { chinese: '西瓜' },
+  'メロン': { chinese: '哈密瓜' },
+  'レモン': { chinese: '柠檬' },
+  'オレンジ': { chinese: '橙子' },
   
   // 衣服
   'ふく': { chinese: '衣服' },
   '服': { chinese: '衣服', furigana: 'ふく' },
   'シャツ': { chinese: '衬衫' },
   'ズボン': { chinese: '裤子' },
+  'スカート': { chinese: '裙子' },
+  'ワンピース': { chinese: '连衣裙' },
+  'ジャケット': { chinese: '夹克' },
+  'コート': { chinese: '外套' },
+  'セーター': { chinese: '毛衣' },
+  'Tシャツ': { chinese: 'T恤' },
+  'ジーンズ': { chinese: '牛仔裤' },
   'くつ': { chinese: '鞋子' },
   '靴': { chinese: '鞋子', furigana: 'くつ' },
   'ぼうし': { chinese: '帽子' },
@@ -121,6 +152,10 @@ export const japaneseDict: Record<string, DictionaryEntry | string> = {
   '時計': { chinese: '手表', furigana: 'とけい' },
   'めがね': { chinese: '眼镜' },
   '眼鏡': { chinese: '眼镜', furigana: 'めがね' },
+  'くつした': { chinese: '袜子' },
+  '靴下': { chinese: '袜子', furigana: 'くつした' },
+  'てぶくろ': { chinese: '手套' },
+  '手袋': { chinese: '手套', furigana: 'てぶくろ' },
   
   // 住所
   'いえ': { chinese: '家' },
@@ -140,6 +175,16 @@ export const japaneseDict: Record<string, DictionaryEntry | string> = {
   'まど': { chinese: '窗户' },
   '窓': { chinese: '窗户', furigana: 'まど' },
   'ドア': { chinese: '门' },
+  'かぎ': { chinese: '钥匙' },
+  '鍵': { chinese: '钥匙', furigana: 'かぎ' },
+  'でんき': { chinese: '电灯' },
+  '電気': { chinese: '电灯', furigana: 'でんき' },
+  'エアコン': { chinese: '空调' },
+  'テレビ': { chinese: '电视' },
+  'れいぞうこ': { chinese: '冰箱' },
+  '冷蔵庫': { chinese: '冰箱', furigana: 'れいぞうこ' },
+  'せんたくき': { chinese: '洗衣机' },
+  '洗濯機': { chinese: '洗衣机', furigana: 'せんたくき' },
   
   // 交通
   'でんしゃ': { chinese: '电车' },
@@ -152,10 +197,16 @@ export const japaneseDict: Record<string, DictionaryEntry | string> = {
   '車': { chinese: '汽车', furigana: 'くるま' },
   'ひこうき': { chinese: '飞机' },
   '飛行機': { chinese: '飞机', furigana: 'ひこうき' },
+  'ふね': { chinese: '船' },
+  '船': { chinese: '船', furigana: 'ふね' },
   'えき': { chinese: '车站' },
   '駅': { chinese: '车站', furigana: 'えき' },
   'くうこう': { chinese: '机场' },
   '空港': { chinese: '机场', furigana: 'くうこう' },
+  'みち': { chinese: '道路' },
+  '道': { chinese: '道路', furigana: 'みち' },
+  'しんごう': { chinese: '红绿灯' },
+  '信号': { chinese: '红绿灯', furigana: 'しんごう' },
   
   // 学校
   'がっこう': { chinese: '学校' },
@@ -169,6 +220,8 @@ export const japaneseDict: Record<string, DictionaryEntry | string> = {
   'ほん': { chinese: '书' },
   '本': { chinese: '书', furigana: 'ほん' },
   'ペン': { chinese: '笔' },
+  'えんぴつ': { chinese: '铅笔' },
+  '鉛筆': { chinese: '铅笔', furigana: 'えんぴつ' },
   'かみ': { chinese: '纸' },
   '紙': { chinese: '纸', furigana: 'かみ' },
   'しゅくだい': { chinese: '作业' },
@@ -176,6 +229,10 @@ export const japaneseDict: Record<string, DictionaryEntry | string> = {
   'べんきょう': { chinese: '学习' },
   '勉強': { chinese: '学习', furigana: 'べんきょう' },
   'テスト': { chinese: '考试' },
+  'しけん': { chinese: '考试' },
+  '試験': { chinese: '考试', furigana: 'しけん' },
+  'じしょ': { chinese: '字典' },
+  '辞書': { chinese: '字典', furigana: 'じしょ' },
   
   // 工作
   'しごと': { chinese: '工作' },
@@ -190,6 +247,12 @@ export const japaneseDict: Record<string, DictionaryEntry | string> = {
   '店': { chinese: '商店', furigana: 'みせ' },
   'レストラン': { chinese: '餐厅' },
   'ホテル': { chinese: '酒店' },
+  'ゆうびんきょく': { chinese: '邮局' },
+  '郵便局': { chinese: '邮局', furigana: 'ゆうびんきょく' },
+  'けいさつ': { chinese: '警察' },
+  '警察': { chinese: '警察', furigana: 'けいさつ' },
+  'しょうぼうしょ': { chinese: '消防局' },
+  '消防署': { chinese: '消防局', furigana: 'しょうぼうしょ' },
   
   // 身体
   'からだ': { chinese: '身体' },
@@ -212,6 +275,12 @@ export const japaneseDict: Record<string, DictionaryEntry | string> = {
   '足': { chinese: '脚', furigana: 'あし' },
   'おなか': { chinese: '肚子' },
   'お腹': { chinese: '肚子', furigana: 'おなか' },
+  'せなか': { chinese: '背' },
+  '背中': { chinese: '背', furigana: 'せなか' },
+  'かみのけ': { chinese: '头发' },
+  '髪の毛': { chinese: '头发', furigana: 'かみのけ' },
+  'は': { chinese: '牙齿' },
+  '歯': { chinese: '牙齿', furigana: 'は' },
   
   // 天气
   'てんき': { chinese: '天气' },
@@ -234,6 +303,8 @@ export const japaneseDict: Record<string, DictionaryEntry | string> = {
   '暖かい': { chinese: '温暖', furigana: 'あたたかい' },
   'すずしい': { chinese: '凉爽' },
   '涼しい': { chinese: '凉爽', furigana: 'すずしい' },
+  'つめたい': { chinese: '冰冷' },
+  '冷たい': { chinese: '冰冷', furigana: 'つめたい' },
   
   // 颜色
   'いろ': { chinese: '颜色' },
@@ -253,6 +324,10 @@ export const japaneseDict: Record<string, DictionaryEntry | string> = {
   'ちゃいろ': { chinese: '棕色' },
   '茶色': { chinese: '棕色', furigana: 'ちゃいろ' },
   'ピンク': { chinese: '粉色' },
+  'むらさき': { chinese: '紫色' },
+  '紫': { chinese: '紫色', furigana: 'むらさき' },
+  'オレンジ': { chinese: '橙色' },
+  'グレー': { chinese: '灰色' },
   
   // 动词 (基本形)
   'いく': { chinese: '去' },
@@ -295,6 +370,32 @@ export const japaneseDict: Record<string, DictionaryEntry | string> = {
   '買う': { chinese: '买', furigana: 'かう' },
   'うる': { chinese: '卖' },
   '売る': { chinese: '卖', furigana: 'うる' },
+  'つくる': { chinese: '做/制作' },
+  '作る': { chinese: '做/制作', furigana: 'つくる' },
+  'おしえる': { chinese: '教' },
+  '教える': { chinese: '教', furigana: 'おしえる' },
+  'ならう': { chinese: '学' },
+  '習う': { chinese: '学', furigana: 'ならう' },
+  'あう': { chinese: '见面' },
+  '会う': { chinese: '见面', furigana: 'あう' },
+  'まつ': { chinese: '等' },
+  '待つ': { chinese: '等', furigana: 'まつ' },
+  'とる': { chinese: '拿' },
+  '取る': { chinese: '拿', furigana: 'とる' },
+  'おく': { chinese: '放' },
+  '置く': { chinese: '放', furigana: 'おく' },
+  'あける': { chinese: '开' },
+  '開ける': { chinese: '开', furigana: 'あける' },
+  'しめる': { chinese: '关' },
+  '閉める': { chinese: '关', furigana: 'しめる' },
+  'はいる': { chinese: '进入' },
+  '入る': { chinese: '进入', furigana: 'はいる' },
+  'でる': { chinese: '出去' },
+  '出る': { chinese: '出去', furigana: 'でる' },
+  'のる': { chinese: '乘坐' },
+  '乗る': { chinese: '乘坐', furigana: 'のる' },
+  'おりる': { chinese: '下车' },
+  '降りる': { chinese: '下车', furigana: 'おりる' },
   
   // 形容词
   'おおきい': { chinese: '大的' },
@@ -332,6 +433,27 @@ export const japaneseDict: Record<string, DictionaryEntry | string> = {
   'おもしろい': { chinese: '有趣的' },
   '面白い': { chinese: '有趣的', furigana: 'おもしろい' },
   'つまらない': { chinese: '无聊的' },
+  'ながい': { chinese: '长的' },
+  '長い': { chinese: '长的', furigana: 'ながい' },
+  'みじかい': { chinese: '短的' },
+  '短い': { chinese: '短的', furigana: 'みじかい' },
+  'おもい': { chinese: '重的' },
+  '重い': { chinese: '重的', furigana: 'おもい' },
+  'かるい': { chinese: '轻的' },
+  '軽い': { chinese: '轻的', furigana: 'かるい' },
+  'ひろい': { chinese: '宽的' },
+  '広い': { chinese: '宽的', furigana: 'ひろい' },
+  'せまい': { chinese: '窄的' },
+  '狭い': { chinese: '窄的', furigana: 'せまい' },
+  'あかるい': { chinese: '明亮的' },
+  '明るい': { chinese: '明亮的', furigana: 'あかるい' },
+  'くらい': { chinese: '暗的' },
+  '暗い': { chinese: '暗的', furigana: 'くらい' },
+  'うるさい': { chinese: '吵的' },
+  'しずか': { chinese: '安静的' },
+  '静か': { chinese: '安静的', furigana: 'しずか' },
+  'にぎやか': { chinese: '热闹的' },
+  '賑やか': { chinese: '热闹的', furigana: 'にぎやか' },
   
   // 场所
   'ばしょ': { chinese: '地方' },
@@ -346,14 +468,23 @@ export const japaneseDict: Record<string, DictionaryEntry | string> = {
   '海': { chinese: '海', furigana: 'うみ' },
   'かわ': { chinese: '河' },
   '川': { chinese: '河', furigana: 'かわ' },
+  'みずうみ': { chinese: '湖' },
+  '湖': { chinese: '湖', furigana: 'みずうみ' },
+  'もり': { chinese: '森林' },
+  '森': { chinese: '森林', furigana: 'もり' },
   'こうえん': { chinese: '公园' },
   '公園': { chinese: '公园', furigana: 'こうえん' },
   'としょかん': { chinese: '图书馆' },
   '図書館': { chinese: '图书馆', furigana: 'としょかん' },
-  'ゆうびんきょく': { chinese: '邮局' },
-  '郵便局': { chinese: '邮局', furigana: 'ゆうびんきょく' },
-  'けいさつ': { chinese: '警察' },
-  '警察': { chinese: '警察', furigana: 'けいさつ' },
+  'はくぶつかん': { chinese: '博物馆' },
+  '博物館': { chinese: '博物馆', furigana: 'はくぶつかん' },
+  'びじゅつかん': { chinese: '美术馆' },
+  '美術館': { chinese: '美术馆', furigana: 'びじゅつかん' },
+  'えいがかん': { chinese: '电影院' },
+  '映画館': { chinese: '电影院', furigana: 'えいがかん' },
+  'デパート': { chinese: '百货商店' },
+  'スーパー': { chinese: '超市' },
+  'コンビニ': { chinese: '便利店' },
   
   // 购物
   'かいもの': { chinese: '购物' },
@@ -366,6 +497,10 @@ export const japaneseDict: Record<string, DictionaryEntry | string> = {
   'レジ': { chinese: '收银台' },
   'ふくろ': { chinese: '袋子' },
   '袋': { chinese: '袋子', furigana: 'ふくろ' },
+  'レシート': { chinese: '收据' },
+  'クレジットカード': { chinese: '信用卡' },
+  'げんきん': { chinese: '现金' },
+  '現金': { chinese: '现金', furigana: 'げんきん' },
   
   // 娱乐
   'えいが': { chinese: '电影' },
@@ -380,7 +515,15 @@ export const japaneseDict: Record<string, DictionaryEntry | string> = {
   'やきゅう': { chinese: '棒球' },
   '野球': { chinese: '棒球', furigana: 'やきゅう' },
   'テニス': { chinese: '网球' },
+  'バスケットボール': { chinese: '篮球' },
+  'バレーボール': { chinese: '排球' },
+  'すいえい': { chinese: '游泳' },
+  '水泳': { chinese: '游泳', furigana: 'すいえい' },
   'ゲーム': { chinese: '游戏' },
+  'しゃしん': { chinese: '照片' },
+  '写真': { chinese: '照片', furigana: 'しゃしん' },
+  'りょこう': { chinese: '旅行' },
+  '旅行': { chinese: '旅行', furigana: 'りょこう' },
   
   // 感情
   'きもち': { chinese: '心情' },
@@ -398,6 +541,12 @@ export const japaneseDict: Record<string, DictionaryEntry | string> = {
   '心配': { chinese: '担心', furigana: 'しんぱい' },
   'あんしん': { chinese: '安心' },
   '安心': { chinese: '安心', furigana: 'あんしん' },
+  'たのしい': { chinese: '快乐' },
+  '楽しい': { chinese: '快乐', furigana: 'たのしい' },
+  'つかれる': { chinese: '累' },
+  '疲れる': { chinese: '累', furigana: 'つかれる' },
+  'げんき': { chinese: '精神' },
+  '元気': { chinese: '精神', furigana: 'げんき' },
   
   // 常用表达
   'そうです': { chinese: '是的' },
@@ -413,6 +562,12 @@ export const japaneseDict: Record<string, DictionaryEntry | string> = {
   'いただきます': { chinese: '我开动了' },
   'ごちそうさま': { chinese: '我吃饱了' },
   'おやすみ': { chinese: '晚安' },
+  'いってきます': { chinese: '我走了' },
+  'いってらっしゃい': { chinese: '路上小心' },
+  'ただいま': { chinese: '我回来了' },
+  'おかえり': { chinese: '欢迎回来' },
+  'しつれいします': { chinese: '失礼了' },
+  '失礼します': { chinese: '失礼了', furigana: 'しつれいします' },
   
   // 护肤化妆品 - 重点添加
   'ひやけどめ': { chinese: '防晒霜' },
@@ -556,7 +711,50 @@ export const japaneseDict: Record<string, DictionaryEntry | string> = {
   'エスプレッソ': { chinese: '浓缩咖啡' },
   'フラペチーノ': { chinese: '星冰乐' },
   'スムージー': { chinese: '奶昔' },
-  'シェイク': { chinese: '奶昔' }
+  'シェイク': { chinese: '奶昔' },
+  
+  // 更多常用词汇
+  'でも': { chinese: '但是' },
+  'そして': { chinese: '然后' },
+  'それから': { chinese: '然后' },
+  'だから': { chinese: '所以' },
+  'しかし': { chinese: '但是' },
+  'または': { chinese: '或者' },
+  'もし': { chinese: '如果' },
+  'たぶん': { chinese: '也许' },
+  'きっと': { chinese: '一定' },
+  'ぜったい': { chinese: '绝对' },
+  '絶対': { chinese: '绝对', furigana: 'ぜったい' },
+  'とても': { chinese: '非常' },
+  'すごく': { chinese: '很' },
+  'ちょっと': { chinese: '一点' },
+  'すこし': { chinese: '一点' },
+  '少し': { chinese: '一点', furigana: 'すこし' },
+  'たくさん': { chinese: '很多' },
+  'みんな': { chinese: '大家' },
+  'だれ': { chinese: '谁' },
+  '誰': { chinese: '谁', furigana: 'だれ' },
+  'なに': { chinese: '什么' },
+  '何': { chinese: '什么', furigana: 'なに' },
+  'どこ': { chinese: '哪里' },
+  'いつ': { chinese: '什么时候' },
+  'どうして': { chinese: '为什么' },
+  'なぜ': { chinese: '为什么' },
+  'どう': { chinese: '怎么样' },
+  'どのように': { chinese: '怎么样' },
+  'いくら': { chinese: '多少钱' },
+  'いくつ': { chinese: '几个' },
+  'どちら': { chinese: '哪个' },
+  'どれ': { chinese: '哪个' },
+  'この': { chinese: '这个' },
+  'その': { chinese: '那个' },
+  'あの': { chinese: '那个' },
+  'ここ': { chinese: '这里' },
+  'そこ': { chinese: '那里' },
+  'あそこ': { chinese: '那里' },
+  'こちら': { chinese: '这边' },
+  'そちら': { chinese: '那边' },
+  'あちら': { chinese: '那边' }
 };
 
 // 翻译函数
@@ -591,4 +789,20 @@ export function translateJapanese(japanese: string): { chinese: string; furigana
 export function isJapanese(text: string): boolean {
   const japaneseRegex = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/;
   return japaneseRegex.test(text);
+}
+
+// 扩展词典的辅助函数
+export function addToDictionary(japanese: string, chinese: string, furigana?: string) {
+  if (furigana) {
+    japaneseDict[japanese] = { chinese, furigana };
+  } else {
+    japaneseDict[japanese] = chinese;
+  }
+}
+
+// 批量添加词汇的函数
+export function addBatchToDictionary(words: Array<{japanese: string, chinese: string, furigana?: string}>) {
+  words.forEach(word => {
+    addToDictionary(word.japanese, word.chinese, word.furigana);
+  });
 }
