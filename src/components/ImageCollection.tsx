@@ -155,7 +155,7 @@ export function ImageCollection() {
       const words = wordInput.split('\n').filter(w => w.trim());
       
       // Add words to vocabulary
-      words.forEach(word => {
+      words.forEach((word, index) => {
         const trimmedWord = word.trim();
         if (trimmedWord) {
           // 自动翻译日语单词
@@ -163,6 +163,8 @@ export function ImageCollection() {
             ? translateJapanese(trimmedWord).chinese
             : '待翻译';
             
+          // 添加小延迟确保每个单词都有唯一ID
+          setTimeout(() => {
           addWord({
             japanese: trimmedWord,
             chinese: autoTranslation,
@@ -170,6 +172,7 @@ export function ImageCollection() {
             rating: 0,
             isPhrase: trimmedWord.length > 10 // Simple heuristic
           });
+          }, index * 10); // 每个单词延迟10ms
         }
       });
 
