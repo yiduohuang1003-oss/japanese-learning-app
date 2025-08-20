@@ -4,6 +4,7 @@ import { useApp } from '../contexts/AppContext';
 import { WordCategory } from '../types';
 import { translateJapanese, isJapanese } from '../utils/dictionary';
 import { smartTranslate } from '../utils/baiduTranslate';
+import { playText } from '../utils/ttsService';
 
 const categories: { value: WordCategory; label: string }[] = [
   { value: 'clothing', label: '衣' },
@@ -336,6 +337,14 @@ export function Home() {
                   >
                     <Plus className="w-5 h-5" />
                     <span>添加到单词库</span>
+                  </button>
+                  
+                  <button
+                    onClick={() => playText(translationResult.japanese)}
+                    className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors font-medium mt-2"
+                  >
+                    <Volume2 className="w-5 h-5" />
+                    <span>试听发音</span>
                   </button>
                 </div>
               </div>
