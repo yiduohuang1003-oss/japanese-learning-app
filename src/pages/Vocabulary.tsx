@@ -11,6 +11,7 @@ import {
 import { useApp } from '../contexts/AppContext';
 import { Word, WordCategory, SortBy, SortOrder } from '../types';
 import { translateJapanese, isJapanese } from '../utils/dictionary';
+import { playText } from '../utils/ttsService';
 
 const categories: { value: WordCategory; label: string }[] = [
   { value: 'clothing', label: '衣' },
@@ -74,31 +75,16 @@ export function Vocabulary() {
     updateWord(wordId, { category });
   };
 
-  const playPronunciation = (text: string) => {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'ja-JP';
-    utterance.rate = 0.8; // 稍微慢一点，更清晰
-    utterance.pitch = 1.0; // 自然音调
-    
-    // 尝试使用更自然的日语语音
-    const voices = speechSynthesis.getVoices();
-    const japaneseVoices = voices.filter(voice => 
-      voice.lang.includes('ja') || voice.lang.includes('JP')
-    );
-    
-    // 优先选择女性日语语音，通常更清晰
-    const preferredVoice = japaneseVoices.find(voice => 
-      voice.name.includes('Female') || 
-      voice.name.includes('女性') ||
-      voice.name.includes('Kyoko') ||
-      voice.name.includes('Otoya')
-    ) || japaneseVoices[0];
-    
-    if (preferredVoice) {
-      utterance.voice = preferredVoice;
+  const playPronunciation = async (text: string) => {
+    try {
+      await playText(text, {
+        lang: 'ja-JP',
+        voice: 'ja-JP-Standard-A' // 可以根据需要选择不同的语音
+      });
+    } catch (error) {
+      console.error('语音播放失败:', error);
+      // 可以显示一个错误提示给用户
     }
-    
-    speechSynthesis.speak(utterance);
   };
 
   const toggleRatingFilter = (rating: number) => {
